@@ -10,18 +10,16 @@
     <style>
         body {
             font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            /* --- Nuevo Fondo de Universo --- */
             background-image: url('https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?q=80&w=2071&auto=format&fit=crop');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
         }
-        /* Efecto de vidrio esmerilado para los contenedores */
         .glass-effect {
-            background: rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: rgba(0, 0, 0, 0.25);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
         }
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         .fade-in { animation: fadeIn 0.5s ease-out forwards; }
@@ -39,7 +37,20 @@
             
             <form id="imageGenerationForm" class="w-full">
                 <textarea id="promptInput" rows="3" class="w-full p-4 text-base bg-black bg-opacity-20 border border-white/30 rounded-lg focus:ring-2 focus:ring-white/50 focus:outline-none placeholder-white/60 resize-none" placeholder="Describe la imagen que quieres crear..."></textarea>
-                <button type="submit" id="generateBtn" class="mt-4 w-full px-6 py-3 bg-white text-black font-bold rounded-lg hover:bg-gray-200 transition-colors disabled:bg-gray-400">Generar</button>
+                
+                <!-- NEW: Style Buttons -->
+                <div id="style-buttons" class="flex flex-wrap gap-2 justify-center mt-4">
+                    <button type="button" class="style-btn bg-white/10 hover:bg-white/20 px-3 py-1 rounded-full text-sm transition-colors">Fotorrealista</button>
+                    <button type="button" class="style-btn bg-white/10 hover:bg-white/20 px-3 py-1 rounded-full text-sm transition-colors">Anime</button>
+                    <button type="button" class="style-btn bg-white/10 hover:bg-white/20 px-3 py-1 rounded-full text-sm transition-colors">Arte Fantástico</button>
+                    <button type="button" class="style-btn bg-white/10 hover:bg-white/20 px-3 py-1 rounded-full text-sm transition-colors">Cyberpunk</button>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-col sm:flex-row gap-3 mt-6">
+                    <button type="submit" id="generateBtn" class="w-full px-6 py-3 bg-white text-black font-bold rounded-lg hover:bg-gray-200 transition-colors disabled:bg-gray-400 disabled:text-gray-800">Generar</button>
+                    <button type="button" id="surpriseBtn" class="w-full sm:w-auto px-6 py-3 bg-purple-600 text-white font-bold rounded-lg hover:bg-purple-700 transition-colors flex-shrink-0">Sorpréndeme ✨</button>
+                </div>
             </form>
         </div>
 
@@ -66,12 +77,25 @@
         const form = document.getElementById('imageGenerationForm');
         const promptInput = document.getElementById('promptInput');
         const generateBtn = document.getElementById('generateBtn');
+        const surpriseBtn = document.getElementById('surpriseBtn');
         const gallery = document.getElementById('imageGallery');
         const loadingIndicator = document.getElementById('loadingIndicator');
         const modal = document.getElementById('messageModal');
         const modalTitle = document.getElementById('modalTitle');
         const modalMessage = document.getElementById('modalMessage');
         const modalCloseBtn = document.getElementById('modalCloseBtn');
+        const styleButtonsContainer = document.getElementById('style-buttons');
+
+        // --- NEW: Surprise Me Prompts ---
+        const randomPrompts = [
+            "Un astronauta meditando en un jardín zen en Marte, arte digital.",
+            "Un zorro con atuendo de detective en una calle lluviosa de Londres, estilo noir.",
+            "Un castillo flotante en el cielo al atardecer, rodeado de cascadas, arte fantástico.",
+            "Una biblioteca mágica dentro de un árbol gigante, llena de luz.",
+            "Un robot sirviendo té a un gato en un café de estilo victoriano, fotorrealista.",
+            "Una ciudad cyberpunk bajo una lluvia de neón, con coches voladores.",
+            "Un dragón hecho de cristal durmiendo en un campo de flores de loto luminosas."
+        ];
 
         function showModal(title, message) {
             modalTitle.textContent = title;
@@ -81,24 +105,24 @@
 
         modalCloseBtn.addEventListener('click', () => modal.classList.add('hidden'));
 
-        form.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const prompt = promptInput.value.trim();
+        // --- Core Generation Logic ---
+        async function generateImage(prompt) {
             if (!prompt) {
                 showModal('Error', 'Por favor, escribe un prompt.');
                 return;
             }
 
             generateBtn.disabled = true;
+            surpriseBtn.disabled = true;
             generateBtn.textContent = 'Generando...';
             loadingIndicator.classList.remove('hidden');
-            gallery.innerHTML = ''; // Limpiar galería anterior
+            gallery.innerHTML = '';
 
             try {
                 const response = await fetch('/.netlify/functions/generate-image', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt: prompt })
+                    body: JSON.stringify({ prompt })
                 });
 
                 if (!response.ok) {
@@ -120,8 +144,33 @@
                 showModal('¡Oops! Algo salió mal', error.message);
             } finally {
                 generateBtn.disabled = false;
+                surpriseBtn.disabled = false;
                 generateBtn.textContent = 'Generar';
                 loadingIndicator.classList.add('hidden');
+            }
+        }
+
+        // --- Event Listeners ---
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const prompt = promptInput.value.trim();
+            generateImage(prompt);
+        });
+
+        // NEW: Surprise Me Button Logic
+        surpriseBtn.addEventListener('click', () => {
+            const randomPrompt = randomPrompts[Math.floor(Math.random() * randomPrompts.length)];
+            promptInput.value = randomPrompt;
+            generateImage(randomPrompt);
+        });
+
+        // NEW: Style Buttons Logic
+        styleButtonsContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('style-btn')) {
+                const style = e.target.textContent;
+                const separator = promptInput.value.trim() === '' ? '' : ', ';
+                promptInput.value += `${separator}${style}, alta definición`;
+                promptInput.focus();
             }
         });
 
