@@ -38,7 +38,6 @@
             <form id="imageGenerationForm" class="w-full">
                 <textarea id="promptInput" rows="3" class="w-full p-4 text-base bg-black bg-opacity-20 border border-white/30 rounded-lg focus:ring-2 focus:ring-white/50 focus:outline-none placeholder-white/60 resize-none" placeholder="Describe la imagen que quieres crear..."></textarea>
                 
-                <!-- NEW: Style Buttons -->
                 <div id="style-buttons" class="flex flex-wrap gap-2 justify-center mt-4">
                     <button type="button" class="style-btn bg-white/10 hover:bg-white/20 px-3 py-1 rounded-full text-sm transition-colors">Fotorrealista</button>
                     <button type="button" class="style-btn bg-white/10 hover:bg-white/20 px-3 py-1 rounded-full text-sm transition-colors">Anime</button>
@@ -46,7 +45,6 @@
                     <button type="button" class="style-btn bg-white/10 hover:bg-white/20 px-3 py-1 rounded-full text-sm transition-colors">Cyberpunk</button>
                 </div>
 
-                <!-- Action Buttons -->
                 <div class="flex flex-col sm:flex-row gap-3 mt-6">
                     <button type="submit" id="generateBtn" class="w-full px-6 py-3 bg-white text-black font-bold rounded-lg hover:bg-gray-200 transition-colors disabled:bg-gray-400 disabled:text-gray-800">Generar</button>
                     <button type="button" id="surpriseBtn" class="w-full sm:w-auto px-6 py-3 bg-purple-600 text-white font-bold rounded-lg hover:bg-purple-700 transition-colors flex-shrink-0">Sorpréndeme ✨</button>
@@ -86,7 +84,6 @@
         const modalCloseBtn = document.getElementById('modalCloseBtn');
         const styleButtonsContainer = document.getElementById('style-buttons');
 
-        // --- NEW: Surprise Me Prompts ---
         const randomPrompts = [
             "Un astronauta meditando en un jardín zen en Marte, arte digital.",
             "Un zorro con atuendo de detective en una calle lluviosa de Londres, estilo noir.",
@@ -105,7 +102,6 @@
 
         modalCloseBtn.addEventListener('click', () => modal.classList.add('hidden'));
 
-        // --- Core Generation Logic ---
         async function generateImage(prompt) {
             if (!prompt) {
                 showModal('Error', 'Por favor, escribe un prompt.');
@@ -130,7 +126,7 @@
                     try {
                         const errorData = await response.json();
                         errorMsg = errorData.error || errorMsg;
-                    } catch (jsonError) {
+                    } catch {
                         errorMsg = await response.text();
                     }
                     throw new Error(errorMsg);
@@ -150,21 +146,18 @@
             }
         }
 
-        // --- Event Listeners ---
         form.addEventListener('submit', (e) => {
             e.preventDefault();
             const prompt = promptInput.value.trim();
             generateImage(prompt);
         });
 
-        // NEW: Surprise Me Button Logic
         surpriseBtn.addEventListener('click', () => {
             const randomPrompt = randomPrompts[Math.floor(Math.random() * randomPrompts.length)];
             promptInput.value = randomPrompt;
             generateImage(randomPrompt);
         });
 
-        // NEW: Style Buttons Logic
         styleButtonsContainer.addEventListener('click', (e) => {
             if (e.target.classList.contains('style-btn')) {
                 const style = e.target.textContent;
@@ -176,8 +169,13 @@
 
         function addImageToGallery(imageUrl, prompt) {
             const card = document.createElement('div');
-            card.className = 'fade-in glass-effect rounded-xl shadow-lg overflow-hidden';
-            card.innerHTML = `<img src="${imageUrl}" alt="${prompt}" class="w-full h-auto object-cover">`;
+            card.className = 'fade-in glass-effect rounded-xl shadow-lg overflow-hidden p-2 flex flex-col items-center';
+            card.innerHTML = `
+                <img src="${imageUrl}" alt="${prompt}" class="w-full h-auto object-cover rounded-lg mb-3">
+                <a href="${imageUrl}" download="imagen-generada.png" class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg font-bold transition-colors">
+                    Descargar 📥
+                </a>
+            `;
             gallery.prepend(card);
         }
     });
