@@ -1,5 +1,4 @@
-// This is a special syntax to import the 'node-fetch' library in Netlify Functions
-const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+const fetch = require('node-fetch');
 
 exports.handler = async (event) => {
   // Only allow POST requests
@@ -17,7 +16,9 @@ exports.handler = async (event) => {
     // Use the API Key securely stored in Netlify's environment variables
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-        throw new Error("API Key not found.");
+        // This will be visible in the Function Log on Netlify
+        console.error("GEMINI_API_KEY no está configurada en Netlify.");
+        throw new Error("La configuración del servidor está incompleta.");
     }
     
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-preview-image-generation:generateContent?key=${apiKey}`;
