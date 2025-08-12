@@ -5,61 +5,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Freddy G Generador de Imágenes</title>
     <meta name="description" content="Genera imágenes ultra-realistas sin límites a partir de cualquier texto. Una herramienta de IA gratuita para dar vida a tus ideas.">
-    <meta name="keywords" content="generador de imágenes, IA, inteligencia artificial, texto a imagen, Freddy G, crear imágenes, arte digital, generador de arte IA">
-    <meta name="author" content="Freddy G">
-
-    <!-- TailwindCSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Google Fonts: Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- PWA Manifest -->
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#111827">
-    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
-
-    <!-- Favicon -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎨</text></svg>">
-
     <style>
-        /* Custom styles */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f9fafb; /* Light mode background */
-        }
-        .dark body {
-            background-color: #030712; /* Dark mode background */
-        }
-        /* Fade-in animation for gallery items */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .fade-in {
-            animation: fadeIn 0.5s ease-out forwards;
-        }
-        /* Loading spinner animation */
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3b82f6;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        /* Custom toggle switch style */
-        input:checked ~ .dot {
-            transform: translateX(100%);
-            background-color: #4f46e5;
-        }
-        input:checked ~ .block {
-            background-color: #a5b4fc;
-        }
+        body { font-family: 'Inter', sans-serif; }
+        .loader { border-top-color: #3b82f6; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200">
+
+    <header class="bg-white dark:bg-gray-800 shadow-md">
+        <nav class="container mx-auto px-6 py-4">
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Freddy G Generador de Imágenes</h1>
+            <p class="text-sm text-gray-500 dark:text-gray-400">Crea sin límites</p>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-8">
+        <section id="prompt-section" class="mb-12 text-center">
+            <h2 class="text-4xl font-extrabold text-gray-900 dark:text-white mb-4">Transforma tus Ideas en Realidad Visual</h2>
+            <p class="text-lg text-gray-600 dark:text-gray-300 mb-8">Escribe una descripción para generar una imagen.</p>
+            <form id="imageGenerationForm" class="max-w-2xl mx-auto">
+                <textarea id="promptInput" rows="3" class="w-full p-4 border-2 rounded-lg dark:bg-gray-800 dark:border-gray-700" placeholder="Ej: Un gato astronauta..."></textarea>
+                <button type="submit" id="generateBtn" class="mt-4 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700">Crear</button>
+            </form>
+        </section>
+
+        <section id="gallery-section">
+            <div id="placeholder" class="text-center py-16 text-gray-500">
+                <h3 class="text-lg font-medium">Tu galería aparecerá aquí.</h3>
+            </div>
+        </section>
+    </main>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('imageGenerationForm');
+        const placeholder = document.getElementById('placeholder');
+
+        console.log("Página cargada correctamente. El script está funcionando.");
+        placeholder.innerHTML = '<h3 class="text-lg font-medium text-green-500">¡La página cargó! El problema está en la llamada a la API.</h3>';
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert("El botón funciona, pero la generación de imágenes está desactivada para esta prueba.");
+            
+            // --- CÓDIGO DE LA API DESACTIVADO ---
+            // La siguiente sección es la que probablemente causa el problema.
+            /*
+            const apiKey = "AIzaSyBaPcev4zcu62gdK_zFwB2dNPmrmBdQ1Sg";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-preview-image-generation:generateContent?key=${apiKey}`;
+            // El resto de la lógica fetch() iría aquí...
+            */
+        });
+    });
+    </script>
+
+</body>
+</html>
