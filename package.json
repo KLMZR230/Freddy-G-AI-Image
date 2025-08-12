@@ -1,0 +1,8 @@
+{
+  "name": "netlify-image-gen-dependencies",
+  "version": "1.0.1",
+  "description": "Dependencies for Netlify function",
+  "dependencies": {
+    "node-fetch": "^2.6.7"
+  }
+}
