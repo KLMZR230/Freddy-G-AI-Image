@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Freddy G Generador de Imágenes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="icons/icon-192x192.png">
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            /* --- Nuevo Fondo de Universo --- */
+            background-image: url('https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?q=80&w=2071&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        /* Efecto de vidrio esmerilado para los contenedores */
+        .glass-effect {
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        .fade-in { animation: fadeIn 0.5s ease-out forwards; }
+        .loader { border: 4px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body class="text-white">
+
+    <main class="min-h-screen flex flex-col items-center justify-center p-4">
+        
+        <div class="w-full max-w-2xl text-center glass-effect rounded-2xl p-6 md:p-8">
+            <h1 class="text-3xl md:text-5xl font-bold mb-2">Generador de Imágenes</h1>
+            <p class="text-lg mb-6 opacity-80">Da vida a tus ideas con IA</p>
+            
+            <form id="imageGenerationForm" class="w-full">
+                <textarea id="promptInput" rows="3" class="w-full p-4 text-base bg-black bg-opacity-20 border border-white/30 rounded-lg focus:ring-2 focus:ring-white/50 focus:outline-none placeholder-white/60 resize-none" placeholder="Describe la imagen que quieres crear..."></textarea>
+                <button type="submit" id="generateBtn" class="mt-4 w-full px-6 py-3 bg-white text-black font-bold rounded-lg hover:bg-gray-200 transition-colors disabled:bg-gray-400">Generar</button>
+            </form>
+        </div>
+
+        <div id="loadingIndicator" class="text-center my-8 hidden">
+             <div class="mx-auto loader"></div>
+             <p class="mt-4 font-medium">Creando tu obra maestra...</p>
+        </div>
+
+        <div id="imageGallery" class="mt-8 w-full max-w-md">
+            <!-- La imagen generada aparecerá aquí -->
+        </div>
+
+        <div id="messageModal" class="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4 hidden">
+            <div class="glass-effect rounded-lg p-6 max-w-sm w-full text-center">
+                <h3 id="modalTitle" class="text-lg font-bold mb-2"></h3>
+                <p id="modalMessage" class="mb-4"></p>
+                <button id="modalCloseBtn" class="px-4 py-2 bg-white text-black rounded-md">Entendido</button>
+            </div>
+        </div>
+    </main>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('imageGenerationForm');
+        const promptInput = document.getElementById('promptInput');
+        const generateBtn = document.getElementById('generateBtn');
+        const gallery = document.getElementById('imageGallery');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const modal = document.getElementById('messageModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalMessage = document.getElementById('modalMessage');
+        const modalCloseBtn = document.getElementById('modalCloseBtn');
+
+        function showModal(title, message) {
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+            modal.classList.remove('hidden');
+        }
+
+        modalCloseBtn.addEventListener('click', () => modal.classList.add('hidden'));
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const prompt = promptInput.value.trim();
+            if (!prompt) {
+                showModal('Error', 'Por favor, escribe un prompt.');
+                return;
+            }
+
+            generateBtn.disabled = true;
+            generateBtn.textContent = 'Generando...';
+            loadingIndicator.classList.remove('hidden');
+            gallery.innerHTML = ''; // Limpiar galería anterior
+
+            try {
+                const response = await fetch('/.netlify/functions/generate-image', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt: prompt })
+                });
+
+                if (!response.ok) {
+                    let errorMsg = 'Hubo un error en el servidor.';
+                    try {
+                        const errorData = await response.json();
+                        errorMsg = errorData.error || errorMsg;
+                    } catch (jsonError) {
+                        errorMsg = await response.text();
+                    }
+                    throw new Error(errorMsg);
+                }
+                
+                const { imageUrl } = await response.json();
+                addImageToGallery(imageUrl, prompt);
+
+            } catch (error) {
+                console.error('Error:', error);
+                showModal('¡Oops! Algo salió mal', error.message);
+            } finally {
+                generateBtn.disabled = false;
+                generateBtn.textContent = 'Generar';
+                loadingIndicator.classList.add('hidden');
+            }
+        });
+
+        function addImageToGallery(imageUrl, prompt) {
+            const card = document.createElement('div');
+            card.className = 'fade-in glass-effect rounded-xl shadow-lg overflow-hidden';
+            card.innerHTML = `<img src="${imageUrl}" alt="${prompt}" class="w-full h-auto object-cover">`;
+            gallery.prepend(card);
+        }
+    });
+    </script>
+</body>
+</html>
