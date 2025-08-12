@@ -1,0 +1,8 @@
+{
+  "name": "freddy-g-image-generator-server",
+  "version": "1.0.0",
+  "description": "Dependencies for Netlify function",
+  "dependencies": {
+    "node-fetch": "^2.6.7"
+  }
+}
