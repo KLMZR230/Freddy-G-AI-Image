@@ -1,0 +1,21 @@
+{
+  "name": "Freddy G Generador de Imágenes",
+  "short_name": "FreddyG AI",
+  "description": "Genera imágenes ultra-realistas sin límites a partir de cualquier texto.",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#030712",
+  "theme_color": "#111827",
+  "icons": [
+    {
+      "src": "icons/icon-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "icons/icon-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}
